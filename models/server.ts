@@ -3,6 +3,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 
 import userRoutes from '../routes/usuario';
+import db from '../db/connection';
 
 
 
@@ -17,14 +18,29 @@ class Server {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || '9000';
-        
+
         //Metodso iniciales
+        this.dbConnection();
         this.middlewares();
         this.routes()
 
     }
 
-    middlewares(){
+    async dbConnection() {
+
+        try {
+
+            await db.authenticate();
+            console.log('base de datos online');
+            
+
+        } catch (error) {
+            throw new Error(error);
+        }
+
+    }
+
+    middlewares() {
         //CORS
         this.app.use(cors());
 
@@ -35,13 +51,13 @@ class Server {
         this.app.use(express.static('public'))
     }
 
-    routes(){
+    routes() {
         this.app.use(this.apiPaths.usuarios, userRoutes)
     }
-    listen(){
-        this.app.listen(this.port, ()=> {
+    listen() {
+        this.app.listen(this.port, () => {
             console.log('Servidor arriba en el puerto: ' + this.port);
-            
+
         })
     }
 }
